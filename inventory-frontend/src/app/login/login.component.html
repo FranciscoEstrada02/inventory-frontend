@@ -1,0 +1,33 @@
+<div class="login-container d-flex justify-content-center align-items-center vh-100 bg-dark">
+  <div class="card bg-dark text-white p-4 shadow-lg" style="width: 100%; max-width: 400px;">
+    <h2 class="text-center mb-4">Iniciar Sesión</h2>
+    <form (submit)="login()">
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input
+          type="text"
+          id="username"
+          class="form-control bg-dark text-white"
+          [(ngModel)]="user.username"
+          name="username"
+          placeholder="Ingresa tu email"
+          required
+        />
+      </div>
+      <div class="mb-4">
+        <label for="password" class="form-label">Contraseña</label>
+        <input
+          type="password"
+          id="password"
+          class="form-control bg-dark text-white"
+          [(ngModel)]="user.password"
+          name="password"
+          placeholder="Ingresa tu contraseña"
+          required
+        />
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+    </form>
+    <p *ngIf="errorMessage" class="text-danger text-center mt-3">{{ errorMessage }}</p>
+  </div>
+</div>

@@ -10,7 +10,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
   const user = authService.getUser();
 
   if (!user || !user.roles) {
-    router.navigate(['/login']);
+    router.navigate(['/products']);
     return false;
   }
 
@@ -18,5 +18,5 @@ export const roleGuard: CanActivateFn = (route, state) => {
     user.roles.includes(role)
   );
 
-  return hasRequiredRole || router.createUrlTree(['/login']);
+  return hasRequiredRole || router.createUrlTree(['/products']);
 };

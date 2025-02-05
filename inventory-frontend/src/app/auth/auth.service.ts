@@ -13,26 +13,30 @@ interface DecodedToken {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-
-  constructor(private http:HttpClient) { 
-  }
+  constructor(private http: HttpClient) {}
 
   login(user: any): Observable<{ token: string }> {
-    return this.http.post<{ token: string }>(API_ENDPOINTS.AUTH.LOGIN, user).pipe(
-      tap(({ token }) => {
-        const decodedToken: any = jwtDecode(token);
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('userRoles', JSON.stringify(decodedToken.roles));
-      })
-    );
+    return this.http
+      .post<{ token: string }>(API_ENDPOINTS.AUTH.LOGIN, user)
+      .pipe(
+        tap(({ token }) => {
+          const decodedToken: any = jwtDecode(token);
+          localStorage.setItem('authToken', token);
+          localStorage.setItem('userRoles', JSON.stringify(decodedToken.roles));
+        })
+      );
   }
 
-  isUserInRole(role:string): boolean{
-    const roles = JSON.parse(localStorage.getItem('userRoles') || '[]');
-    return roles.includes(role);
+  getCurrentUserRoles(): string[] {
+    const user = this.getUser();
+    return user?.roles || [];
+  }
+
+  isUserInRole(role: string): boolean {
+    return this.getCurrentUserRoles().includes(role);
   }
 
   register(user: any): Observable<any> {
@@ -51,15 +55,18 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  
+  get userRoles(): string[] {
+    return JSON.parse(localStorage.getItem('userRoles') || '[]');
+  }
+
   getUser(): DecodedToken | null {
     const token = localStorage.getItem('authToken');
-    if (!token) return null; 
+    if (!token) return null;
     try {
-      const decodedToken: DecodedToken = jwtDecode(token); 
-      return decodedToken; 
+      const decodedToken: DecodedToken = jwtDecode(token);
+      return decodedToken;
     } catch (error) {
-      console.error("Error decodificando el token", error);
+      console.error('Error decoding token', error);
       return null;
     }
   }

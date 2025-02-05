@@ -45,6 +45,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('userRoles');
   }
 
   getToken(): string | null {
@@ -53,10 +54,6 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
-  }
-
-  get userRoles(): string[] {
-    return JSON.parse(localStorage.getItem('userRoles') || '[]');
   }
 
   getUser(): DecodedToken | null {

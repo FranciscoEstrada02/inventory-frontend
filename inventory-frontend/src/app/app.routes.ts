@@ -4,13 +4,37 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { ProductsListComponent } from './products/products.component';
 import { AdminComponent } from './admin/admin.component';
-import { authGuard } from './auth.guard';
-
+import { authGuard } from './guards/auth.guard';
+import { roleGuard } from './guards/role.guard';
 export const routes: Routes = [
-    { path: 'home', component: HomeComponent },
-    { path: 'login', component: LoginComponent },
-    { path: 'register', component: RegisterComponent },
-    { path: 'products', component: ProductsListComponent },
-    { path: 'admin', component: AdminComponent, canActivate: [authGuard] },
-    { path: '**', redirectTo: '/' }
-];
+    { 
+      path: 'home', 
+      component: HomeComponent, 
+      canActivate: [authGuard, roleGuard],
+      data: { roles: ['ROLE_USER', 'ROLE_ADMIN']}
+    },
+    { 
+      path: 'products', 
+      component: ProductsListComponent,
+      canActivate: [authGuard, roleGuard],
+      data: { roles: ['ROLE_USER', 'ROLE_ADMIN'] } 
+    },
+    { 
+      path: 'admin', 
+      component: AdminComponent,
+      canActivate: [authGuard, roleGuard], 
+      data: { roles: ['ROLE_ADMIN'] } 
+    },
+    { 
+      path: 'login', 
+      component: LoginComponent 
+    },
+    { 
+      path: 'register', 
+      component: RegisterComponent 
+    },
+    { 
+      path: '**', 
+      redirectTo: '/home' 
+    }
+  ];

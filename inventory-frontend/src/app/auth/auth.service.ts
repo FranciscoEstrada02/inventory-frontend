@@ -4,34 +4,43 @@ import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../shared/api-endpoints';
 import { Observable, tap } from 'rxjs';
 import { Token } from '@angular/compiler';
+import { jwtDecode } from 'jwt-decode';
+
+interface DecodedToken {
+  sub: string;
+  roles: string[];
+  exp: number;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  private apiUrl = ''
-
   constructor(private http:HttpClient) { 
   }
 
-  login(user:any): Observable<string>{
-    return this.http.post<string>(API_ENDPOINTS.AUTH.LOGIN, user).pipe(
-      tap((response: any) =>{
-        if (response.token) {
-          localStorage.setItem('authToken', response.token);
-        } else {
-          console.error('No se recibió token en la respuesta');
-        } 
+  login(user: any): Observable<{ token: string }> {
+    return this.http.post<{ token: string }>(API_ENDPOINTS.AUTH.LOGIN, user).pipe(
+      tap(({ token }) => {
+        const decodedToken: any = jwtDecode(token);
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('userRoles', JSON.stringify(decodedToken.roles));
       })
-    )
+    );
   }
+
+  isUserInRole(role:string): boolean{
+    const roles = JSON.parse(localStorage.getItem('userRoles') || '[]');
+    return roles.includes(role);
+  }
+
   register(user: any): Observable<any> {
     return this.http.post(API_ENDPOINTS.AUTH.REGISTER, user);
   }
 
   logout(): void {
-    localStorage.removeItem('authToken'); // Eliminar token al cerrar sesión
+    localStorage.removeItem('authToken');
   }
 
   getToken(): string | null {
@@ -39,6 +48,19 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken(); // Devuelve true si hay un token guardado
+    return !!this.getToken();
+  }
+
+  
+  getUser(): DecodedToken | null {
+    const token = localStorage.getItem('authToken');
+    if (!token) return null; 
+    try {
+      const decodedToken: DecodedToken = jwtDecode(token); 
+      return decodedToken; 
+    } catch (error) {
+      console.error("Error decodificando el token", error);
+      return null;
+    }
   }
 }
